@@ -3,7 +3,7 @@
 <li class="media border rounded mb-3 p-3 container">
     <div class="mr-3 text-center">
         <div class="avatar-mini mb-1">
-            <img src="{% static 'img/avatar.png' %}" alt="..." >
+            <img src="{% static 'img/avatar.png' %}">
         </div>
 
         <span id="rating">{{ question.rating }}</span>
@@ -19,9 +19,9 @@
 
         <div class="mb-1">Теги:
             {% for tag in question.tags %}
-                <a href="#" class="text-decoration-none">{{ tag }}</a>
+                <a href="{% url 'tag' tag=tag %}" class="text-decoration-none">{{ tag }}</a>
             {% endfor %}
         </div>
-        <a href="#" class="text-decoration-none"> Комментарии <span class="badge badge-pill badge-secondary">{{ question.comments }}</span></a>
+        <a href="{% url 'question' question_id=question.id %}" class="text-decoration-none"> Комментарии <span class="badge badge-pill badge-secondary">{{ question.comments }}</span></a>
     </div>
 </li>

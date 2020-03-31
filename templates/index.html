@@ -3,13 +3,13 @@
 {% block index %}
 
     {% block sortParameters %}
-        <div class="btn-group btn-group-sm btn-group-toggle mb-3" data-toggle="buttons">
-            <label class="btn btn-secondary">
-                <a href="#" class="text-decoration-none text-white"><input type="radio" name="options" id="sortDate" autocomplete="off" checked disabled>По дате</a>
-            </label>
-            <label class="btn btn-secondary">
-                <a href="#" class="text-decoration-none text-white"><input type="radio" name="options" id="sortDating" autocomplete="off">По рейтингу</a>
-            </label>
+        <div class="mb-3">
+            {% if tag %}
+                <h5> Сортировать по тегу <a href="{% url 'tag' tag=tag %}" class="text-decoration-none">{{ tag }}</a></h5>
+            {% else %}
+                <a href="{% url 'index' %}"><button type="button" class="btn btn-primary btn-sm">По дате</button></a>
+                <a href="{% url 'hot' %}"><button type="button" class="btn btn-primary btn-sm">По рейтингу</button></a>
+            {% endif %}
         </div>
     {% endblock %}
 

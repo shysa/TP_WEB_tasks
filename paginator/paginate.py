@@ -1,0 +1,55 @@
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
+
+def paginate(objects_list, request):
+    context = {}
+
+    # Создание пагинатора
+    current_page = Paginator(objects_list, 10)
+    page = request.GET.get('page')
+
+    try:
+        # Если существует, то выбираем эту страницу
+        context['question_list'] = current_page.page(page)
+    except PageNotAnInteger:
+        # Если None, то выбираем первую страницу
+        context['question_list'] = current_page.page(1)
+    except EmptyPage:
+        # Если вышли за последнюю страницу, то возвращаем последнюю
+        context['question_list'] = current_page.page(current_page.num_pages)
+
+    # количество страниц слева и справа от текущей
+    ADD_PAGES = 3
+
+    if context['question_list'].paginator.num_pages > ADD_PAGES * 2 + 1:
+        # количество страниц больше чем "окно"
+
+        # найдем начало и конец "окна" для общего случая
+        start_window = context['question_list'].number - ADD_PAGES
+        end_window = context['question_list'].number + ADD_PAGES
+
+        if start_window < 1:
+            # если "окно вылезает" за левую границу
+            # то левую границу ставим на 1-ю страницу
+            start_window = 1
+            # а правую границу вычисляем относительно 1-й
+            end_window = 1 + ADD_PAGES * 2
+
+        if end_window > context['question_list'].paginator.num_pages:
+            # если "окно вылезает" за правую границу
+            # то правую границу ставим на последнюю страницу
+            end_window = context['question_list'].paginator.num_pages
+            # а левую границу вычисляем относительно последней страницы
+            start_window = end_window - ADD_PAGES * 2
+
+        # определим итератор для "окна"
+        my_page_range = range(start_window, end_window + 1)
+
+    else:
+        # количество страниц меньше или равно "окну"
+        # просто используем весь диапазон доступных страниц, т.е. page_range
+        my_page_range = context['question_list'].paginator.page_range
+
+    context['page_range'] = my_page_range
+
+    return context
