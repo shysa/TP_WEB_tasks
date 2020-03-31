@@ -1,0 +1,24 @@
+{% load static %}
+
+<li class="media border rounded mb-3 p-3 container">
+    <div class="mr-3 text-center">
+        <div class="avatar-mini mb-1">
+            <img src="{% static 'img/avatar.png' %}" alt="...">
+        </div>
+
+        <span id="rating">{{ comment.rating }}</span>
+        <div>
+            <button type="button" class="btn btn-sm"><i class="fas fa-plus"></i></button>
+            <button type="button" class="btn btn-sm"><i class="fas fa-minus"></i></button>
+        </div>
+    </div>
+
+    <div class="media-body">
+        <p> {{ comment.text }}</p>
+
+        <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" id="CorrectAnswer{{ comment.id }}">
+            <label class="custom-control-label" for="CorrectAnswer{{ comment.id }}">Отметить как верный ответ</label>
+        </div>
+    </div>
+</li>

@@ -1,0 +1,29 @@
+{% load static %}
+
+<div class="navbar navbar-expand-md navbar-light bg-light sticky-top">
+    <div class="col-md-2 col-sm-4">
+        <a class="navbar-brand" href="{% url 'index' %}">
+            <img src="{% static 'img/owl.svg' %}" class="d-inline-block align-top" alt="">
+            AskOWL</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+
+    <div class="col-md-4 col-sm-5">
+        <form class="form-inline mr-auto my-1 ml-1">
+            <input class="form-control mr-1 col-8" type="search" placeholder="Поиск" aria-label="Search">
+            <button class="btn btn-outline-success my-1 col-3" type="submit"><i class="fas fa-search"></i></button>
+        </form>
+    </div>
+
+    <div class="col-md-3 col-sm-3">
+        <a href="#" class="nav-link"><button type="button" class="btn btn-outline-success btn-block">Задать вопрос</button></a>
+    </div>
+
+    <div class="col-md-3">
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            {% include 'include/autorization.html' %}
+        </div>
+    </div>
+</div>

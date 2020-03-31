@@ -1,0 +1,34 @@
+.custom-file-input~.custom-file-label::after {
+   content: "Обзор";
+}
+
+.media img {
+   display: block;
+}
+
+.navbar-brand img {
+   width: 30px;
+   height: 30px;
+}
+
+.custom-file-label {
+  overflow: hidden;
+}
+
+.avatar {
+    width: 128px;
+    height: 128px;
+}
+
+.avatar-mini {
+    width: 64px;
+    height: 64px;
+}
+
+.avatar-mini img, .avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 0 0;
+}
+
