@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from paginator.paginate import paginate
+from ask_bolgova.paginator.paginate import paginate
 
 
 def index(request):

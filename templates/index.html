@@ -7,8 +7,8 @@
             {% if tag %}
                 <h5> Сортировать по тегу <a href="{% url 'tag' tag=tag %}" class="text-decoration-none">{{ tag }}</a></h5>
             {% else %}
-                <a href="{% url 'index' %}"><button type="button" class="btn btn-primary btn-sm">По дате</button></a>
-                <a href="{% url 'hot' %}"><button type="button" class="btn btn-primary btn-sm">По рейтингу</button></a>
+                <a href="{% url 'index' %}"><button type="button" class="btn btn-outline-primary btn-sm">По дате</button></a>
+                <a href="{% url 'hot' %}"><button type="button" class="btn btn-outline-primary btn-sm">По рейтингу</button></a>
             {% endif %}
         </div>
     {% endblock %}
