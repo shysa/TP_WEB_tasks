@@ -30,7 +30,7 @@ class Profile(models.Model):
 
 # ----------------------------------------------------------------------------------------
 class Tag(models.Model):
-    title = models.CharField(max_length=30, unique=True)
+    title = models.CharField(max_length=30, db_index=True)
 
     def __str__(self):
         return self.title
@@ -123,6 +123,11 @@ class Question(models.Model):
 
     class Meta:
         ordering = ['-creating_date']
+
+    def add_tag(self, tag):
+        tag, created = Tag.objects.get_or_create(title=tag)
+        self.tags.add(tag.id)
+        self.save()
 
     def get_absolute_url(self):
         return '/question/%d/' % self.pk

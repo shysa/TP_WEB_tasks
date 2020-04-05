@@ -25,6 +25,5 @@ class Command(BaseCommand):
                                         author=a.profile)
 
             for x in range(random.randint(1, 3)):
-                t = random.choice(tag_list)
-                q.tags.add(t)
-            q.save()
+                t = get_random_string()
+                q.add_tag(t)
