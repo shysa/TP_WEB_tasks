@@ -101,6 +101,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_PROFILE_MODULE = 'ask_bolgova.Profile'
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
@@ -123,3 +124,9 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+
+
+# USER LOGIN/LOGOUT REDIRECTS
+
+LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/login/'

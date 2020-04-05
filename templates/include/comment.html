@@ -6,15 +6,19 @@
             <img src="{% static 'img/avatar.png' %}" alt="...">
         </div>
 
-        <span id="rating">{{ comment.rating }}</span>
+        <span id="rating">{{ comment.rating.rating }}</span>
+
+        {% if user.is_authenticated %}
         <div>
-            <button type="button" class="btn btn-sm"><i class="fas fa-plus"></i></button>
-            <button type="button" class="btn btn-sm"><i class="fas fa-minus"></i></button>
+            <button type="button" class="btn btn-sm" data-action="like"><i class="fas fa-plus"></i></button>
+            <button type="button" class="btn btn-sm" data-action="dislike"><i class="fas fa-minus"></i></button>
         </div>
+        {% endif %}
+
     </div>
 
     <div class="media-body">
-        <p> {{ comment.text }}</p>
+        <p class="text-break"> {{ comment.text }}</p>
 
         <div class="custom-control custom-checkbox">
             <input type="checkbox" class="custom-control-input" id="CorrectAnswer{{ comment.id }}">

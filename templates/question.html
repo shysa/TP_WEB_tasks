@@ -6,23 +6,27 @@
     <!-- Question Post -->
     <div class="media">
         <div class="mr-3 text-center">
-            <div class="avatar mb-3">
+            <div class="avatar mb-1">
                 <img src="{% static 'img/avatar.png' %}">
             </div>
 
-            <span id="rating">{{ question.rating }}</span>
+            <span id="rating">{{ question.rating.rating }}</span>
+
+            {% if user.is_authenticated %}
             <div>
                 <button type="button" class="btn btn-sm"><i class="fas fa-plus"></i></button>
                 <button type="button" class="btn btn-sm"><i class="fas fa-minus"></i></button>
             </div>
+            {% endif %}
+
         </div>
 
         <div class="media-body">
-            <h5 class="mt-0 mb-1">{{ question.title }} {{ question.id }}</h5>
-            <p> {{ question.text }} </p>
+            <h5 class="mt-0 mb-1"> {{ question.title }} </h5>
+            <p class="text-break"> {{ question.text }} </p>
 
             <div class="mb-1">Теги:
-                {% for tag in question.tags %}
+                {% for tag in question.tags.all %}
                     <a href="{% url 'tag' tag=tag %}" class="text-decoration-none">{{ tag }}</a>
                 {% endfor %}
             </div>
