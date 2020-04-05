@@ -6,7 +6,7 @@
             <img src="{% static 'img/avatar.png' %}">
         </div>
 
-        <span id="rating">{{ question.rating.rating }}</span>
+        <span id="rating">{{ question.rating }}</span>
 
         {% if user.is_authenticated %}
         <div>

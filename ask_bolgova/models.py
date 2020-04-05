@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import F
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -39,16 +40,13 @@ class Tag(models.Model):
 class LikeManager(models.Manager):
     use_for_related_fields = True
 
-    def likes(self):
+    def like_sort(self):
         # Записи с рейтингом > 0
         return self.get_queryset().filter(vote__gt=0)
 
-    def dislikes(self):
+    def dislike_sort(self):
         # И < 0
         return self.get_queryset().filter(vote__lt=0)
-
-    def rating(self):
-        return self.get_queryset().aggregate(Sum('vote')).get('vote__sum') or 0
 
     def create(self, target, user, pk, vote_type):
         obj = target.__class__.objects.get(pk=pk)
@@ -60,7 +58,7 @@ class LikeManager(models.Manager):
             else:
                 like.delete()
         except Like.DoesNotExist:
-            obj.rating.create(user=user, vote=vote_type)
+            obj.votes.create(user=user, vote=vote_type)
 
 
 class Like(models.Model):
@@ -72,7 +70,7 @@ class Like(models.Model):
         (LIKE, 'Нравится')
     )
 
-    vote = models.SmallIntegerField(choices=VOTES, default=0)
+    vote = models.SmallIntegerField(choices=VOTES)
 
     user = models.ForeignKey(settings.AUTH_PROFILE_MODULE, on_delete=models.CASCADE)
 
@@ -83,14 +81,14 @@ class Like(models.Model):
     objects = LikeManager()
 
     def __str__(self):
-        title = str(self.user) + " votes " + str(self.object_id) + " | " + str(self.content_type)
+        title = str(self.user) + " votes " + str(self.object_id) + " | " + str(self.content_type.name)
         return title
 
 
 # ----------------------------------------------------------------------------------------
 class QuestionManager(models.Manager):
     def best_questions(self):
-        return self.get_queryset().order_by('-rating__vote').annotate(comment_count=Count('comment'))
+        return sorted(Question.objects.all(), key=lambda m: m.rating)
 
     def new_questions(self):
         return self.get_queryset().order_by('-creating_date')[:10].annotate(comment_count=Count('comment'))
@@ -106,14 +104,18 @@ class Question(models.Model):
     creating_date = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     author = models.ForeignKey(settings.AUTH_PROFILE_MODULE, on_delete=models.CASCADE)
-    rating = GenericRelation(Like, related_query_name='questions')
-
     tags = models.ManyToManyField(Tag, blank=True)
+    votes = GenericRelation(Like, related_query_name='questions')
 
     objects = QuestionManager()
 
     class Meta:
         ordering = ['-creating_date']
+
+    @property
+    def rating(self):
+        return Like.objects.filter(object_id=self.id,
+                                   content_type=ContentType.objects.get_for_model(self)).aggregate(Sum('vote')).get('vote__sum') or 0
 
     def get_absolute_url(self):
         return '/question/%d/' % self.pk
@@ -133,8 +135,12 @@ class Comment(models.Model):
 
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     author = models.ForeignKey(settings.AUTH_PROFILE_MODULE, on_delete=models.CASCADE)
+    votes = GenericRelation(Like, related_query_name='comments')
 
-    rating = GenericRelation(Like, related_query_name='comments')
+    @property
+    def rating(self):
+        return Like.objects.filter(object_id=self.id,
+                                   content_type=ContentType.objects.get_for_model(self)).aggregate(Sum('vote')).get('vote__sum') or 0
 
     def save_comment(self):
         super(Comment, self).save()
