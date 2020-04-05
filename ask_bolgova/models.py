@@ -53,12 +53,19 @@ class LikeManager(models.Manager):
         try:
             like = Like.objects.get(content_type=ContentType.objects.get_for_model(obj), object_id=obj.id, user=user)
             if like.vote is not vote_type:
+                obj.rating -= like.vote
                 like.vote = vote_type
+                obj.rating += like.vote
+                obj.save(update_fields=['rating'])
                 like.save(update_fields=['vote'])
             else:
+                obj.rating -= like.vote
                 like.delete()
+                obj.save(update_fields=['rating'])
         except Like.DoesNotExist:
             obj.votes.create(user=user, vote=vote_type)
+            obj.rating += vote_type
+            obj.save(update_fields=['rating'])
 
 
 class Like(models.Model):
@@ -80,6 +87,9 @@ class Like(models.Model):
 
     objects = LikeManager()
 
+    class Meta:
+        unique_together = ('user', 'object_id')
+
     def __str__(self):
         title = str(self.user) + " votes " + str(self.object_id) + " | " + str(self.content_type.name)
         return title
@@ -88,7 +98,7 @@ class Like(models.Model):
 # ----------------------------------------------------------------------------------------
 class QuestionManager(models.Manager):
     def best_questions(self):
-        return sorted(Question.objects.all(), key=lambda m: m.rating)
+        return self.get_queryset().order_by('-rating')[:10].annotate(comment_count=Count('comment'))
 
     def new_questions(self):
         return self.get_queryset().order_by('-creating_date')[:10].annotate(comment_count=Count('comment'))
@@ -107,15 +117,12 @@ class Question(models.Model):
     tags = models.ManyToManyField(Tag, blank=True)
     votes = GenericRelation(Like, related_query_name='questions')
 
+    rating = models.IntegerField(default=0)
+
     objects = QuestionManager()
 
     class Meta:
         ordering = ['-creating_date']
-
-    @property
-    def rating(self):
-        return Like.objects.filter(object_id=self.id,
-                                   content_type=ContentType.objects.get_for_model(self)).aggregate(Sum('vote')).get('vote__sum') or 0
 
     def get_absolute_url(self):
         return '/question/%d/' % self.pk
@@ -137,10 +144,7 @@ class Comment(models.Model):
     author = models.ForeignKey(settings.AUTH_PROFILE_MODULE, on_delete=models.CASCADE)
     votes = GenericRelation(Like, related_query_name='comments')
 
-    @property
-    def rating(self):
-        return Like.objects.filter(object_id=self.id,
-                                   content_type=ContentType.objects.get_for_model(self)).aggregate(Sum('vote')).get('vote__sum') or 0
+    rating = models.IntegerField(default=0)
 
     def save_comment(self):
         super(Comment, self).save()
