@@ -24,4 +24,4 @@ class Command(BaseCommand):
             c = random.choice(comments_list)
 
             like_q = Like.objects.create(target=q, user=a.profile, pk=q.id, vote_type=random.choice(votes))
-            like_c = Like.objects.create(target=c, user=a.profile, pk=q.id, vote_type=random.choice(votes))
+            like_c = Like.objects.create(target=c, user=a.profile, pk=c.id, vote_type=random.choice(votes))

@@ -87,9 +87,6 @@ class Like(models.Model):
 
     objects = LikeManager()
 
-    class Meta:
-        unique_together = ('user', 'object_id')
-
     def __str__(self):
         title = str(self.user) + " votes " + str(self.object_id) + " | " + str(self.content_type.name)
         return title
@@ -98,10 +95,10 @@ class Like(models.Model):
 # ----------------------------------------------------------------------------------------
 class QuestionManager(models.Manager):
     def best_questions(self):
-        return self.get_queryset().order_by('-rating')[:10].annotate(comment_count=Count('comment'))
+        return self.get_queryset().order_by('-rating').annotate(comment_count=Count('comment'))
 
     def new_questions(self):
-        return self.get_queryset().order_by('-creating_date')[:10].annotate(comment_count=Count('comment'))
+        return self.get_queryset().order_by('-creating_date').annotate(comment_count=Count('comment'))
 
     def tag_questions(self, tag):
         return self.get_queryset().filter(tags__title__contains=tag).annotate(comment_count=Count('comment'))
