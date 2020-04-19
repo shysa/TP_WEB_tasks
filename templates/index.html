@@ -16,7 +16,7 @@
     <!-- Questions list -->
     <div>
         <ul class="list-unstyled">
-            {% for question in question_list %}
+            {% for question in object_list %}
                 {% include 'include/question_index.html' with question=question %}
             {% empty %}
                 <div class="alert alert-secondary" role="alert">
@@ -27,6 +27,6 @@
     </div>
 
     <!-- Pagination -->
-    {% include 'include/pagination.html' with object_list=question_list page_range=page_range %}
+    {% include 'include/pagination.html' with object_list=object_list page_range=page_range %}
 
 {% endblock %}

@@ -29,7 +29,7 @@
             <label class="col-sm-3 col-form-label">Загрузить аватар</label>
             <div class="col-sm-7">
                 <div class="avatar">
-                    <img src="{% static 'img/avatar.png' %}" id="preview">
+                    <img src="{{ user.profile.avatar.url }}" id="preview">
                 </div>
             </div>
         </div>

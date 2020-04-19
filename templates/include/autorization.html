@@ -3,7 +3,7 @@
 {% if user.is_authenticated %}
     <div class="navbar-nav media">
         <div class="avatar-mini mr-3 d-none d-md-none d-lg-block">
-            <img src="{% static 'img/avatar.png' %}" alt="...">
+            <img src="{{ user.profile.avatar.url }}">
         </div>
         <div class="media-body">
             <h5 class="my-1"> {{ user.username }} </h5>

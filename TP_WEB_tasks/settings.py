@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'ask_bolgova',
+    'bootstrap4',
 ]
 
 MIDDLEWARE = [
@@ -106,7 +107,7 @@ AUTH_PROFILE_MODULE = 'ask_bolgova.Profile'
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
-LANGUAGE_CODE = 'ru-ru'
+LANGUAGE_CODE = 'ru'
 
 TIME_ZONE = 'UTC'
 
@@ -125,8 +126,9 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
 
 # USER LOGIN/LOGOUT REDIRECTS
 
-LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'

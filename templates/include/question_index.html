@@ -3,10 +3,10 @@
 <li class="media border rounded mb-3 p-3 container">
     <div class="mr-3 text-center">
         <div class="avatar-mini mb-1">
-            <img src="{% static 'img/avatar.png' %}">
+            <img src="{{ question.author.avatar.url }}">
         </div>
 
-        <span id="rating">{{ question.rating }}</span>
+        <div id="rating">{{ question.rating }}</div>
 
         {% if user.is_authenticated %}
         <div>
@@ -28,5 +28,12 @@
             {% endfor %}
         </div>
         <a href="{% url 'question' question_id=question.id %}" class="text-decoration-none"> Комментарии <span class="badge badge-pill badge-secondary">{{ question.comment_count }}</span></a>
+
+        <hr>
+        <div class="">
+            <small class="text-muted">Автор: <a href="#" class="text-decoration-none">{{ question.author }}</a></small>
+            <small class="text-muted">Опубликовано: {{ question.creating_date }}</small>
+        </div>
+
     </div>
 </li>

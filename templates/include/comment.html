@@ -3,10 +3,10 @@
 <li class="media border rounded mb-3 p-3 container">
     <div class="mr-3 text-center">
         <div class="avatar-mini mb-1">
-            <img src="{% static 'img/avatar.png' %}" alt="...">
+            <img src="{{ comment.author.avatar.url }}" alt="...">
         </div>
 
-        <span id="rating">{{ comment.rating }}</span>
+        <div id="rating">{{ comment.rating }}</div>
 
         {% if user.is_authenticated %}
         <div>
@@ -22,7 +22,15 @@
 
         <div class="custom-control custom-checkbox">
             <input type="checkbox" class="custom-control-input" id="CorrectAnswer{{ comment.id }}">
-            <label class="custom-control-label" for="CorrectAnswer{{ comment.id }}">Отметить как верный ответ</label>
+            {% if user.is_authenticated %}
+                <label class="custom-control-label" for="CorrectAnswer{{ comment.id }}">Отметить как верный ответ</label>
+            {% endif %}
+        </div>
+
+        <hr>
+        <div class="">
+            <small class="text-muted">Автор: <a href="#" class="text-decoration-none">{{ comment.author }}</a></small>
+            <small class="text-muted">Опубликовано: {{ comment.creating_date }}</small>
         </div>
     </div>
 </li>

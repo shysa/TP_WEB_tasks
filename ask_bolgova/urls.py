@@ -2,6 +2,11 @@ from django.urls import path
 
 from ask_bolgova import views
 
+from django.conf.urls.static import static
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+
+from TP_WEB_tasks import settings
+
 urlpatterns = [
     path('', views.index, name="index"),
     path('question/<int:question_id>/', views.question, name="question"),
@@ -10,5 +15,8 @@ urlpatterns = [
     path('ask/', views.ask, name="ask"),
     path('profile/', views.profile, name="profile"),
     path('login/', views.login, name="login"),
-    path('signup/', views.signup, name="signup", kwargs={'redirect_authenticated_user': True}),
+    path('signup/', views.signup, name="signup"),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += staticfiles_urlpatterns()

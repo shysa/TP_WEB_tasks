@@ -7,7 +7,7 @@
     <div class="media">
         <div class="mr-3 text-center">
             <div class="avatar mb-1">
-                <img src="{% static 'img/avatar.png' %}">
+                <img src="{{ question.author.avatar.url }}">
             </div>
 
             <span id="rating">{{ question.rating }}</span>
@@ -30,13 +30,20 @@
                     <a href="{% url 'tag' tag=tag %}" class="text-decoration-none">{{ tag }}</a>
                 {% endfor %}
             </div>
+
+            <hr>
+            <div class="">
+                <small class="text-muted">Автор: <a href="#" class="text-decoration-none">{{ question.author }}</a></small>
+                <small class="text-muted">Опубликовано: {{ question.creating_date }}</small>
+            </div>
+
         </div>
     </div>
 
     <hr>
     <!-- Comments -->
     <ul class="list-unstyled">
-        {% for comment in comments %}
+        {% for comment in comments.object_list %}
             {% include 'include/comment.html' with comment=comment %}
         {% empty %}
             <div class="alert alert-secondary" role="alert">
@@ -44,6 +51,9 @@
             </div>
         {% endfor %}
     </ul>
+
+    <!-- Comment pagination -->
+    {% include 'include/pagination.html' with object_list=comments.object_list page_range=comments.page_range %}
 
     <hr>
     <!-- Write your comment -->

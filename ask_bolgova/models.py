@@ -1,18 +1,21 @@
 from django.db import models
-from django.db.models import F
 from django.conf import settings
-from django.db.models.signals import post_save
+import os
+
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from django.contrib.auth.models import User, BaseUserManager
+
+from django.contrib.auth.models import User
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
-from django.db.models import Sum, Count
+
+from django.db.models import Count
 
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    avatar = models.ImageField(blank=True)
+    avatar = models.ImageField(blank=True, upload_to='uploads/', default='avatar.png')
     nickname = models.CharField(max_length=30)
 
     @receiver(post_save, sender=User)
@@ -30,7 +33,7 @@ class Profile(models.Model):
 
 # ----------------------------------------------------------------------------------------
 class Tag(models.Model):
-    title = models.CharField(max_length=30, db_index=True)
+    title = models.CharField(max_length=30, db_index=True, unique=True)
 
     def __str__(self):
         return self.title
@@ -126,11 +129,9 @@ class Question(models.Model):
         self.tags.add(tag.id)
         self.save()
 
-    def get_absolute_url(self):
-        return '/question/%d/' % self.pk
+    #def get_absolute_url(self):
+     #   from django.core.urlresolvers;
 
-    def save_question(self):
-        super(Question, self).save()
 
     def __str__(self):
         return self.title
@@ -147,9 +148,6 @@ class Comment(models.Model):
     votes = GenericRelation(Like, related_query_name='comments')
 
     rating = models.IntegerField(default=0)
-
-    def save_comment(self):
-        super(Comment, self).save()
 
     def __str__(self):
         return self.text
