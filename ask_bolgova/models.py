@@ -15,8 +15,15 @@ from django.db.models import Count
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    avatar = models.ImageField(blank=True, upload_to='uploads/', default='avatar.png')
+    avatar = models.ImageField(blank=True, upload_to='uploads/')
     nickname = models.CharField(max_length=30)
+
+    @property
+    def get_avatar(self):
+        if self.avatar:
+            return self.avatar.url
+        else:
+            return 'static/img/avatar.png'
 
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):

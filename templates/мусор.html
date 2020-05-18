@@ -1,0 +1,170 @@
+<form class="needs-validation" novalidate action="{% url 'login' %}" method="POST" enctype="">
+
+        <div class="form-group row">
+            <label for="inputEmail3" class="col-sm-3 col-form-label">Логин</label>
+            <div class="col-sm-7">
+                <input type="email" class="form-control" id="inputEmail3" required>
+                <div class="invalid-feedback">
+                    Неверный логин
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label for="inputPassword3" class="col-sm-3 col-form-label">Пароль</label>
+            <div class="col-sm-7">
+                <input type="password" class="form-control" id="inputPassword3" required>
+                <div class="invalid-feedback">
+                    Неверный пароль
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-sm-7 offset-sm-3">
+                <input type="hidden" name="next" value="{{ next }}"/>
+                <button type="submit" class="btn btn-primary">Вход</button>
+            </div>
+        </div>
+    </form>
+
+
+
+
+# Привязываем к событию изменения/удаления аватара со стороны пользователя удаление аватарки в файлах
+@receiver(post_delete, sender=Profile)
+def auto_delete_image_file_when_delete_avatar(sender, instance, **kwargs):
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            os.remove(instance.file.path)
+
+
+@receiver(models.signals.pre_save, sender=Profile)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = sender.objects.get(pk=instance.pk).file
+    except sender.DoesNotExist:
+        return False
+
+    new_file = instance.file
+    if not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
+
+
+
+
+
+<form class="needs-validation" novalidate>
+
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Заголовок</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" placeholder="Заголовок" required>
+                    <div class="invalid-feedback">
+                        Неверный заголовок
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Текст</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" placeholder="Текст вопроса" rows="8" required></textarea>
+                    <div class="invalid-feedback">
+                        Неверный текст вопроса
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Теги</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" placeholder="Теги" required>
+                    <div class="invalid-feedback">
+                        Неверно введены теги
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="offset-sm-2 col-sm-7">
+                    <button type="submit" class="btn btn-primary">Отправить</button>
+                </div>
+            </div>
+</form>
+
+
+
+<div class="form-group row">
+            <label class="col-sm-3 col-form-label">Загрузить аватар</label>
+            <div class="col-sm-7">
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="customFile" required accept=".png, .jpg, .jpeg">
+                    <label class="custom-file-label" for="customFile"></label>
+                    <div class="invalid-feedback">
+                        Неверный аватар
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+    def clean_password(self):
+        password1 = self.cleaned_data['password1']
+        if password1:
+            password_validation.validate_password(password1)
+        return password1
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        if ' ' in username:
+            raise forms.ValidationError('Имя пользователя содержит пробелы')
+        return username
+
+    # проверка паролей на совпадение
+def clean(self):
+        super().clean()
+        password1 = self.cleaned_data['password1']
+        password2 = self.cleaned_data['password2']
+        if password1 and password2 and password1 != password2:
+            errors = {'password2': ValidationError(
+                'Введенные пароли не совпадают', code='password_mismatch')}
+            raise ValidationError(errors)
+
+    def save(self, commit=True):
+        user = super(UserRegistrationForm, self).save(commit=False)
+        user.username = self.cleaned_data["username"]
+        user.email = self.cleaned_data["email"]
+        user.password = self.cleaned_data["password1"]
+        if commit:
+            user.save()
+        return user
+
+
+
+
+
+def login(request):
+    next = request.META.get('HTTP_REFERER')
+    next = '%s?%s' % (urlsplit(next).path, urlsplit(next).query)
+
+    if request.method == 'GET':
+        form = forms.LoginForm()
+    else:
+        form = forms.LoginForm(data=request.POST)
+        if form.is_valid():
+            user = auth.authenticate(request, **form.cleaned_data)
+            if user is not None:
+                auth.login(request, user)
+                if next and next != request.path:
+                    return HttpResponseRedirect(request.POST.get('next', reverse('index')))
+                return redirect('index')
+            else:
+                return render(request, 'login.html', {'form': form, 'next': next})
+
+    return render(request, 'login.html', {'form': form, 'next': next})

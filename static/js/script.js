@@ -20,15 +20,7 @@
 $(document).ready(function(){
   bsCustomFileInput.init();
 
-  $("#customFile").on('change',function(){
-    var fileName = $(this).val();
-    var cleanFileName = fileName.replace('C:\\fakepath\\', " ");
-    if (cleanFileName.length > 40) {
-      cleanFileName = cleanFileName.slice(0, 39) + '...';
-    }
-    $(this).next('.custom-file-label').html(cleanFileName);
-
-
+  $("#id_avatar").on('change',function(){
     var input = $(this)[0];
     var reader = new FileReader();
     reader.readAsDataURL(input.files[0]);

@@ -1,4 +1,5 @@
-from django.contrib import auth
+from django.contrib import auth, messages
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 
 from django.contrib.auth.decorators import login_required
@@ -6,7 +7,10 @@ from django.contrib.auth.decorators import login_required
 from ask_bolgova.paginator.paginate import paginate
 from ask_bolgova.models import *
 
+from urllib.parse import urlsplit
+
 from ask_bolgova import forms
+
 
 def index(request):
     question_list = Question.objects.new_questions()
@@ -48,22 +52,62 @@ def ask(request):
 
 @login_required
 def profile(request):
-    return render(request, 'profile.html')
+    user = get_object_or_404(User, username=request.user.username)
+    if request.method == 'GET':
+        form = forms.ProfileForm(initial={'email': user.email, 'nickname': user.profile.nickname}, instance=user)
+    else:
+        form = forms.ProfileForm(data=request.POST)
+        if form.is_valid():
+            for key, value in form.cleaned_data.items():
+                if key != 'avatar':
+                    setattr(user, key, value)
+                    setattr(user.profile, key, value)
+                if request.FILES.get('avatar') is not None:
+                    user.profile.avatar = request.FILES.get('avatar')
+            user.save()
+            return redirect('profile')
+    return render(request, 'profile.html', {'form': form})
 
 
 def login(request):
+    next = request.POST.get('next', request.GET.get('next', ''))
+
     if request.method == 'GET':
         form = forms.LoginForm()
     else:
         form = forms.LoginForm(data=request.POST)
         if form.is_valid():
-            user = auth.authenticate(request, **form.cleaned_data)
-            if user is not None:
-                auth.login(request, user)
-                return redirect('/')    # TODO: правильный редирект! должен происходить туда, откуда пользователь был направлен на страницу логина
+            if form.user is not None:
+                auth.login(request, form.user)
+                if next and next != request.path:
+                    return redirect(request.POST.get('next', reverse('index')))
+                return redirect('index')
+            else:
+                return render(request, 'login.html', {'form': form, 'next': next})
 
-    return render(request, 'login.html', {'form': form})
+    return render(request, 'login.html', {'form': form, 'next': next})
+
+
+def logout(request):
+    path_to_return = request.META.get('HTTP_REFERER', '/')
+    auth.logout(request)
+    return redirect(path_to_return)
 
 
 def signup(request):
-    return render(request, 'signup.html')
+    if request.method == 'GET':
+        form = forms.UserRegistrationForm()
+    else:
+        form = forms.UserRegistrationForm(data=request.POST)
+        if form.is_valid():
+            user = form.save()
+            user.profile.nickname = form.cleaned_data.get('nickname')
+            user.profile.avatar = request.FILES.get('avatar', None)
+            user.save()
+            user = auth.authenticate(request, **form.cleaned_data)
+            if user is not None:
+                auth.login(request, user)
+                return redirect('index')
+
+    return render(request, 'signup.html', {'form': form})
+
