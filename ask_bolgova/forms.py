@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
-from ask_bolgova.models import Question
+from ask_bolgova.models import Question, Comment
 
 
 class LoginForm(forms.Form):
@@ -60,6 +60,14 @@ class UserRegistrationForm(UserCreationForm):
             raise forms.ValidationError('Введите пароль повторно')
         return password2
 
+    def clean_avatar(self):
+        url = self.cleaned_data['avatar']
+        extensions = ['jpg', 'jpeg', 'png']
+        url_ext = url.split('.', 1)[1].lower()
+        if url_ext not in extensions:
+            raise forms.ValidationError('Недопустимый формат изображения')
+        return url
+
     def clean(self):
         super().clean()
         password1 = self.cleaned_data['password1']
@@ -95,10 +103,31 @@ class QuestionForm(forms.ModelForm):
         return question
 
 
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['text', 'question', 'author']
+        widgets = {
+            #'question': forms.HiddenInput,
+            #'author': forms.HiddenInput,
+            'text': forms.Textarea(attrs={'placeholder': 'Введите ваш комментарий', 'rows': 4})
+        }
+
+    def save(self, commit=True):
+        comment = Comment(**self.cleaned_data)
+        if commit:
+            comment.save()
+        return comment
+
+
 class ProfileForm(forms.ModelForm):
     email = forms.EmailField()
     nickname = forms.CharField(label="Никнейм")
     avatar = forms.ImageField(label="Аватар", required=False)
+
+    # def __init__(self, request_user, *args, **kwargs):
+    #   self.request_user = request_user
+    #   super().__init__(*args, **kwargs)
 
     def clean_nickname(self):
         username = self.cleaned_data['nickname']
@@ -106,7 +135,14 @@ class ProfileForm(forms.ModelForm):
             raise forms.ValidationError('Никнейм содержит пробелы')
         return username
 
+    def clean_avatar(self):
+        url = self.cleaned_data['avatar']
+        extensions = ['jpg', 'jpeg', 'png']
+        url_ext = url.split('.', 1)[1].lower()
+        if url_ext not in extensions:
+            raise forms.ValidationError('Недопустимый формат изображения')
+        return url
 
     class Meta:
         model = User
-        fields = ('email', 'nickname', 'avatar')
+        fields = ['email', 'nickname', 'avatar']

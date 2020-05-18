@@ -31,7 +31,7 @@
 
         <hr>
         <div class="">
-            <small class="text-muted">Автор: <a href="#" class="text-decoration-none">{{ question.author }}</a></small>
+            <small class="text-muted">Автор: <a href="{% url 'view_profile' username=question.author %}" class="text-decoration-none">{{ question.author }}</a></small>
             <small class="text-muted">Опубликовано: {{ question.creating_date }}</small>
         </div>
 

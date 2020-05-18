@@ -2,18 +2,15 @@
 {% load bootstrap4 %}
 
 {% block index %}
-    <div class="col-sm-7">
         <h5 class="mb-3">Новый вопрос</h5>
 
-        <form method="POST" enctype="" novalidate>
+        <form method="POST" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
 
-            {% bootstrap_form form %}
+            {% bootstrap_form form layout="horizontal" label_class="form-label col-sm-3" field_class="form-field col-sm-7" %}
 
             {% buttons %}
                 <button type="submit" class="btn btn-primary">Задать вопрос</button>
             {% endbuttons %}
         </form>
-
-    </div>
 {% endblock %}

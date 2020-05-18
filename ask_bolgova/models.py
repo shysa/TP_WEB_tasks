@@ -2,6 +2,8 @@ from django.db import models
 from django.conf import settings
 import os
 
+from django.urls import reverse
+
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
@@ -136,9 +138,8 @@ class Question(models.Model):
         self.tags.add(tag.id)
         self.save()
 
-    #def get_absolute_url(self):
-     #   from django.core.urlresolvers;
-
+    def get_absolute_url(self):
+        return reverse('question', args=[self.pk])
 
     def __str__(self):
         return self.title

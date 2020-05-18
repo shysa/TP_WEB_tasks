@@ -22,7 +22,23 @@ def question(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     comments = Comment.objects.filter(question_id=question_id)
 
-    return render(request, 'question.html', {'question': question, 'comments': paginate(comments, request)})
+    initial = {'question': question.pk}
+    if request.user.is_authenticated:
+        initial['author'] = request.user.profile
+
+    if request.method == 'GET':
+        form = forms.CommentForm(initial=initial)
+    else:
+        form = forms.CommentForm(initial=initial, data=request.POST)
+        if form.is_valid():
+            #comment = form.save()
+            print(request.get_full_path())
+            print(urlsplit(request.get_full_path()).query)
+            #return render(request, 'question.html', {'question': question, 'comments': paginate(comments, request), 'form': form})
+        else:
+            print(form.author)
+
+    return render(request, 'question.html', {'question': question, 'comments': paginate(comments, request), 'form': form})
 
 
 def tag(request, tag):
@@ -45,7 +61,7 @@ def ask(request):
         form = forms.QuestionForm(request.user.profile, data=request.POST)
         if form.is_valid():
             question = form.save()
-            return redirect(reverse('question', kwargs={'question_id': question.pk}))
+            return redirect(question.get_absolute_url())
 
     return render(request, 'ask.html', {'form': form})
 
@@ -54,7 +70,7 @@ def ask(request):
 def profile(request):
     user = get_object_or_404(User, username=request.user.username)
     if request.method == 'GET':
-        form = forms.ProfileForm(initial={'email': user.email, 'nickname': user.profile.nickname}, instance=user)
+        form = forms.ProfileForm(initial={'nickname': user.profile.nickname}, instance=user)
     else:
         form = forms.ProfileForm(data=request.POST)
         if form.is_valid():
@@ -67,6 +83,14 @@ def profile(request):
             user.save()
             return redirect('profile')
     return render(request, 'profile.html', {'form': form})
+
+
+def view_profile(request, username):
+    user = User.objects.get(username=username)
+    if username == request.user.username:
+        return redirect('profile')
+    form = forms.ProfileForm(initial={'nickname': user.profile.nickname}, instance=user)
+    return render(request, 'profile.html', {'form': form, 'user': user})
 
 
 def login(request):

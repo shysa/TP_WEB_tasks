@@ -1,6 +1,6 @@
 {% load static %}
 
-<li class="media border rounded mb-3 p-3 container">
+<li class="media border rounded mb-3 p-3 container" id="{{ comment.id }}">
     <div class="mr-3 text-center">
         <div class="avatar-mini mb-1">
             <img src="{{ comment.author.avatar.url }}" alt="...">
@@ -29,7 +29,7 @@
 
         <hr>
         <div class="">
-            <small class="text-muted">Автор: <a href="#" class="text-decoration-none">{{ comment.author }}</a></small>
+            <small class="text-muted">Автор: <a href="{% url 'view_profile' username=comment.author %}" class="text-decoration-none">{{ comment.author }}</a></small>
             <small class="text-muted">Опубликовано: {{ comment.creating_date }}</small>
         </div>
     </div>
