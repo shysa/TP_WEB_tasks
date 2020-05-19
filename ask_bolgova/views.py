@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from ask_bolgova.paginator.paginate import paginate
 from ask_bolgova.models import *
 
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, urlunsplit
 
 from ask_bolgova import forms
 
@@ -22,6 +22,8 @@ def question(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     comments = Comment.objects.filter(question_id=question_id)
 
+    comments_page = paginate(comments, request)
+
     initial = {'question': question.pk}
     if request.user.is_authenticated:
         initial['author'] = request.user.profile
@@ -31,14 +33,18 @@ def question(request, question_id):
     else:
         form = forms.CommentForm(initial=initial, data=request.POST)
         if form.is_valid():
-            #comment = form.save()
-            print(request.get_full_path())
-            print(urlsplit(request.get_full_path()).query)
-            #return render(request, 'question.html', {'question': question, 'comments': paginate(comments, request), 'form': form})
-        else:
-            print(form.author)
+            comment = form.save()
+            if comments_page['current_num_objects'] + 1 > 10:
+                page = comments_page['num_pages'] + 1
+                comments_page['object_list'].object_list = comment
+            else:
+                page = comments_page['num_pages']
+                comments_page['object_list'] = list(comments_page['object_list'].object_list).append(comment)
+            # TODO: можно как-нибудь более красиво это сделать?
+            path_to_redirect = question.get_absolute_url() + '?page=%d#%d' % (page, comment.pk)
+            return redirect(path_to_redirect, {'question': question, 'comments': comments_page, 'form': form})
 
-    return render(request, 'question.html', {'question': question, 'comments': paginate(comments, request), 'form': form})
+    return render(request, 'question.html', {'question': question, 'comments': comments_page, 'form': form})
 
 
 def tag(request, tag):
@@ -61,7 +67,7 @@ def ask(request):
         form = forms.QuestionForm(request.user.profile, data=request.POST)
         if form.is_valid():
             question = form.save()
-            return redirect(question.get_absolute_url())
+            return redirect(reverse('question', args=[question.pk]))
 
     return render(request, 'ask.html', {'form': form})
 

@@ -51,5 +51,7 @@ def paginate(objects_list, request):
         my_page_range = context['object_list'].paginator.page_range
 
     context['page_range'] = my_page_range
+    context['num_pages'] = current_page.num_pages
+    context['current_num_objects'] = len(current_page.page(current_page.num_pages))
 
     return context

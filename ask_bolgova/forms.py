@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from ask_bolgova.models import Question, Comment
 
 
+# --------------------------------------------- LOGIN ---------------------------------------------
 class LoginForm(forms.Form):
     username = forms.CharField(label="Логин")
     password = forms.CharField(widget=forms.PasswordInput, label="Пароль")
@@ -40,6 +41,7 @@ class LoginForm(forms.Form):
         return cdata
 
 
+# --------------------------------------------- REGISTER ---------------------------------------------
 class UserRegistrationForm(UserCreationForm):
     username = forms.CharField(label="Логин")
     email = forms.EmailField()
@@ -86,30 +88,76 @@ class UserRegistrationForm(UserCreationForm):
         fields = ('username', 'email', 'nickname', 'password1', 'password2', 'avatar')
 
 
+# --------------------------------------------- ASK ---------------------------------------------
+class TagsFieldWidget(forms.MultiWidget):
+    def __init__(self, attrs=None):
+        widgets = [forms.TextInput(attrs={'placeholder': 'Введите тэги через запятую'})]
+        super(TagsFieldWidget, self).__init__(widgets, attrs)
+
+    def decompress(self, value):
+        if value:
+            return [value]
+        else:
+            return ['']
+
+
+class TagsField(forms.MultiValueField):
+    def __init__(self, *args, **kwargs):
+        fields = [forms.CharField()]
+        super(TagsField, self).__init__(fields, widget=TagsFieldWidget, *args, **kwargs)
+
+    def compress(self, values):
+        return values[0]
+
+
 class QuestionForm(forms.ModelForm):
+    tags = TagsField(label='Тэги')
+
     class Meta:
         model = Question
         fields = ['title', 'text', 'tags']
+        widgets = {
+            'title': forms.TextInput(),
+            'text': forms.Textarea(attrs={'placeholder': 'Введите ваш вопрос', 'rows': 10}),
+        }
+        labels = {
+            'title': 'Заголовок',
+            'text': 'Текст',
+        }
+
+    def clean_tags(self):
+        tags = self.cleaned_data['tags']
+        lst = tags.split(',', maxsplit=3)
+        if len(lst) > 3:
+            raise forms.ValidationError('Пост должен содержать не более трех тэгов')
+        for tag in lst:
+            if ' ' in tag:
+                raise forms.ValidationError('Тэг содержит пробел')
+        return lst
 
     def __init__(self, author, *args, **kwargs):
         self.author = author
         super().__init__(*args, **kwargs)
 
     def save(self, commit=True):
-        question = Question(**self.cleaned_data)
+        question = Question(title=self.cleaned_data['title'], text=self.cleaned_data['text'])
         question.author = self.author
         if commit:
+            question.save()
+            for tag in self.cleaned_data['tags']:
+                question.add_tag(tag)
             question.save()
         return question
 
 
+# --------------------------------------------- COMMENT ---------------------------------------------
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ['text', 'question', 'author']
         widgets = {
-            #'question': forms.HiddenInput,
-            #'author': forms.HiddenInput,
+            'question': forms.HiddenInput,
+            'author': forms.HiddenInput,
             'text': forms.Textarea(attrs={'placeholder': 'Введите ваш комментарий', 'rows': 4})
         }
 
@@ -120,6 +168,7 @@ class CommentForm(forms.ModelForm):
         return comment
 
 
+# --------------------------------------------- PROFILE ---------------------------------------------
 class ProfileForm(forms.ModelForm):
     email = forms.EmailField()
     nickname = forms.CharField(label="Никнейм")
