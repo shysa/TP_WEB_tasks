@@ -40,7 +40,7 @@ def question(request, question_id):
             else:
                 page = comments_page['num_pages']
                 comments_page['object_list'] = list(comments_page['object_list'].object_list).append(comment)
-            # TODO: можно как-нибудь более красиво это сделать?
+            # TODO: можно как-нибудь более красиво сделать редирект после добавления коммента?
             path_to_redirect = question.get_absolute_url() + '?page=%d#%d' % (page, comment.pk)
             return redirect(path_to_redirect, {'question': question, 'comments': comments_page, 'form': form})
 
@@ -91,14 +91,6 @@ def profile(request):
     return render(request, 'profile.html', {'form': form})
 
 
-def view_profile(request, username):
-    user = User.objects.get(username=username)
-    if username == request.user.username:
-        return redirect('profile')
-    form = forms.ProfileForm(initial={'nickname': user.profile.nickname}, instance=user)
-    return render(request, 'profile.html', {'form': form, 'user': user})
-
-
 def login(request):
     next = request.POST.get('next', request.GET.get('next', ''))
 
@@ -128,13 +120,13 @@ def signup(request):
     if request.method == 'GET':
         form = forms.UserRegistrationForm()
     else:
-        form = forms.UserRegistrationForm(data=request.POST)
+        form = forms.UserRegistrationForm(request.POST, request.FILES)
         if form.is_valid():
             user = form.save()
             user.profile.nickname = form.cleaned_data.get('nickname')
             user.profile.avatar = request.FILES.get('avatar', None)
             user.save()
-            user = auth.authenticate(request, **form.cleaned_data)
+            user = auth.authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password1'])
             if user is not None:
                 auth.login(request, user)
                 return redirect('index')

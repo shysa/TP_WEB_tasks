@@ -1,9 +1,30 @@
+import os
+from django.template.defaultfilters import filesizeformat
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
 from ask_bolgova.models import Question, Comment
+from PIL import Image, ImageFilter
+
+
+# --------------------------------------------- AVATAR VALIDATORS ---------------------------------------------
+def size(img):
+    print('hi')
+    max = 10 * 1024
+    if img.size > max:
+        raise forms.ValidationError('Файл слишком большой (%s). Максимальный размер файла - %s' %
+                                    (filesizeformat(img.size), filesizeformat(max)))
+
+
+def ext(img):
+    # TODO: по MIME-типу проверять же не очень хорошо
+    allowed_types = ['image']
+    ext = img.content_type.split('/')[0]
+    if ext not in allowed_types:
+        errors = {'password': ValidationError('Неверный формат загружаемого файла')}
+        raise ValidationError(errors)
 
 
 # --------------------------------------------- LOGIN ---------------------------------------------
@@ -62,14 +83,6 @@ class UserRegistrationForm(UserCreationForm):
             raise forms.ValidationError('Введите пароль повторно')
         return password2
 
-    def clean_avatar(self):
-        url = self.cleaned_data['avatar']
-        extensions = ['jpg', 'jpeg', 'png']
-        url_ext = url.split('.', 1)[1].lower()
-        if url_ext not in extensions:
-            raise forms.ValidationError('Недопустимый формат изображения')
-        return url
-
     def clean(self):
         super().clean()
         password1 = self.cleaned_data['password1']
@@ -82,6 +95,7 @@ class UserRegistrationForm(UserCreationForm):
             errors = {'password2': ValidationError('Введенные пароли не совпадают'),
                       'password1': ValidationError('')}
             raise ValidationError(errors)
+        #return self.cleaned_data
 
     class Meta:
         model = User
@@ -127,7 +141,7 @@ class QuestionForm(forms.ModelForm):
 
     def clean_tags(self):
         tags = self.cleaned_data['tags']
-        lst = tags.split(',', maxsplit=3)
+        lst = tags.split(', ', maxsplit=3)
         if len(lst) > 3:
             raise forms.ValidationError('Пост должен содержать не более трех тэгов')
         for tag in lst:
@@ -172,6 +186,7 @@ class CommentForm(forms.ModelForm):
 class ProfileForm(forms.ModelForm):
     email = forms.EmailField()
     nickname = forms.CharField(label="Никнейм")
+    # TODO: валидаторы не срабатывают? все равно можно загрузить .txt
     avatar = forms.ImageField(label="Аватар", required=False)
 
     # def __init__(self, request_user, *args, **kwargs):
@@ -183,14 +198,6 @@ class ProfileForm(forms.ModelForm):
         if ' ' in username:
             raise forms.ValidationError('Никнейм содержит пробелы')
         return username
-
-    def clean_avatar(self):
-        url = self.cleaned_data['avatar']
-        extensions = ['jpg', 'jpeg', 'png']
-        url_ext = url.split('.', 1)[1].lower()
-        if url_ext not in extensions:
-            raise forms.ValidationError('Недопустимый формат изображения')
-        return url
 
     class Meta:
         model = User

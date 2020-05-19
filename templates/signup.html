@@ -7,7 +7,7 @@
     {% if user.is_authenticated %}
         <div class="alert alert-secondary">Вы уже авторизованы</div>
     {% else %}
-        <form action="{% url 'signup' %}" method="POST" class="needs-validation multi" enctype="multipart/form-data" novalidate>
+        <form action="." method="POST" class="needs-validation multi" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
 
             {% bootstrap_form form layout="horizontal" label_class="form-label col-sm-3" field_class="form-field col-sm-7" %}

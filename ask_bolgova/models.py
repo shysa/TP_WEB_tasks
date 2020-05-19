@@ -1,17 +1,12 @@
 from django.db import models
 from django.conf import settings
-import os
-
+import os, hashlib
 from django.urls import reverse
-
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-
 from django.contrib.auth.models import User
-
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
-
 from django.db.models import Count
 
 

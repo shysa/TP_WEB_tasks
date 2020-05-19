@@ -29,7 +29,7 @@
 
         <hr>
         <div class="">
-            <small class="text-muted">Автор: <a href="{% url 'view_profile' username=comment.author %}" class="text-decoration-none">{{ comment.author }}</a></small>
+            <small class="text-muted">Автор: <span class="text-primary">{{ question.author.nickname }}</span></small>
             <small class="text-muted">Опубликовано: {{ comment.creating_date }}</small>
         </div>
     </div>
