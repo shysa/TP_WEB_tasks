@@ -92,6 +92,7 @@ def profile(request):
 
 
 def login(request):
+    # TODO: при клике много раз в шапке на Вход параметры настакиваются, втф
     next = request.POST.get('next', request.GET.get('next', ''))
 
     if request.method == 'GET':

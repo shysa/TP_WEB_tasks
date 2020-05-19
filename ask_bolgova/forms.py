@@ -11,21 +11,10 @@ from PIL import Image, ImageFilter
 
 # --------------------------------------------- AVATAR VALIDATORS ---------------------------------------------
 def size(img):
-    print('hi')
-    max = 10 * 1024
+    max = 50 * 1024
     if img.size > max:
         raise forms.ValidationError('Файл слишком большой (%s). Максимальный размер файла - %s' %
                                     (filesizeformat(img.size), filesizeformat(max)))
-
-
-def ext(img):
-    # TODO: по MIME-типу проверять же не очень хорошо
-    allowed_types = ['image']
-    ext = img.content_type.split('/')[0]
-    if ext not in allowed_types:
-        errors = {'password': ValidationError('Неверный формат загружаемого файла')}
-        raise ValidationError(errors)
-
 
 # --------------------------------------------- LOGIN ---------------------------------------------
 class LoginForm(forms.Form):
@@ -69,7 +58,7 @@ class UserRegistrationForm(UserCreationForm):
     nickname = forms.CharField(label="Никнейм")
     password1 = forms.CharField(widget=forms.PasswordInput, label="Пароль")
     password2 = forms.CharField(widget=forms.PasswordInput, label="Повторите пароль")
-    avatar = forms.ImageField(label="Загрузить аватар", required=False)
+    avatar = forms.ImageField(label="Загрузить аватар", required=False, validators=[size])
 
     def clean_nickname(self):
         nickname = self.cleaned_data['nickname']
@@ -95,7 +84,6 @@ class UserRegistrationForm(UserCreationForm):
             errors = {'password2': ValidationError('Введенные пароли не совпадают'),
                       'password1': ValidationError('')}
             raise ValidationError(errors)
-        #return self.cleaned_data
 
     class Meta:
         model = User
