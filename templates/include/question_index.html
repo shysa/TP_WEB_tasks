@@ -3,15 +3,15 @@
 <li class="media border rounded mb-3 p-3 container">
     <div class="mr-3 text-center">
         <div class="avatar-mini mb-1">
-            <img src="{{ question.author.avatar.url }}">
+            <img src="{{ question.author.get_avatar }}">
         </div>
 
-        <div id="rating">{{ question.rating }}</div>
+        <div id="q{{ question.id }}">{{ question.rating }}</div>
 
-        {% if user.is_authenticated %}
-        <div>
-            <button type="button" class="btn btn-sm"><i class="fas fa-plus"></i></button>
-            <button type="button" class="btn btn-sm"><i class="fas fa-minus"></i></button>
+        {% if user.is_authenticated and request.user.profile != question.author %}
+        <div class="rating">
+            <button id="l{{ question.id }}" type="submit" formmethod="POST" formaction="{% url 'like' %}" class="btn btn-sm"><i class="fas fa-plus"></i></button>
+            <button id="d{{ question.id }}" type="submit" formmethod="POST" formaction="{% url 'like' %}" class="btn btn-sm"><i class="fas fa-minus"></i></button>
         </div>
         {% endif %}
 

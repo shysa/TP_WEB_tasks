@@ -20,7 +20,7 @@ class Profile(models.Model):
         if self.avatar:
             return self.avatar.url
         else:
-            return 'static/img/avatar.png'
+            return settings.STATIC_URL + 'img/avatar.png'
 
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):
@@ -74,6 +74,8 @@ class LikeManager(models.Manager):
             obj.rating += vote_type
             obj.save(update_fields=['rating'])
 
+        return obj.rating
+
 
 class Like(models.Model):
     LIKE = 1
@@ -122,6 +124,7 @@ class Question(models.Model):
     votes = GenericRelation(Like, related_query_name='questions')
 
     rating = models.IntegerField(default=0)
+    id_answer = models.IntegerField(default=-1)
 
     objects = QuestionManager()
 

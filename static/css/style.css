@@ -31,3 +31,11 @@
   object-fit: cover;
   object-position: 0 0;
 }
+
+button:disabled {
+    background-color: rgba(0, 123, 255, 0.35);
+}
+
+.right-comment {
+    background-color: rgba(40, 167, 69, 0.1);
+}

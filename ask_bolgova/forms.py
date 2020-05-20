@@ -9,12 +9,13 @@ from ask_bolgova.models import Question, Comment
 from PIL import Image, ImageFilter
 
 
-# --------------------------------------------- AVATAR VALIDATORS ---------------------------------------------
+# --------------------------------------------- AVATAR VALIDATOR ---------------------------------------------
 def size(img):
     max = 50 * 1024
     if img.size > max:
         raise forms.ValidationError('Файл слишком большой (%s). Максимальный размер файла - %s' %
                                     (filesizeformat(img.size), filesizeformat(max)))
+
 
 # --------------------------------------------- LOGIN ---------------------------------------------
 class LoginForm(forms.Form):
@@ -174,8 +175,7 @@ class CommentForm(forms.ModelForm):
 class ProfileForm(forms.ModelForm):
     email = forms.EmailField()
     nickname = forms.CharField(label="Никнейм")
-    # TODO: валидаторы не срабатывают? все равно можно загрузить .txt
-    avatar = forms.ImageField(label="Аватар", required=False)
+    avatar = forms.ImageField(label="Аватар", required=False, validators=[size])
 
     # def __init__(self, request_user, *args, **kwargs):
     #   self.request_user = request_user

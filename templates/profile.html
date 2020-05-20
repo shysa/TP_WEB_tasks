@@ -3,6 +3,12 @@
 {% load static %}
 
 {% block index %}
+    {% if messages %}
+        {% for message in messages %}
+            <script>$('.toast').filter('.success').toast('show');</script>
+        {% endfor %}
+    {% endif %}
+
     <h5 class="mb-3">Профиль пользователя {{ user.username }}</h5>
     <form action="{% url 'profile' %}" method="POST" enctype="multipart/form-data" novalidate>
         {% csrf_token %}

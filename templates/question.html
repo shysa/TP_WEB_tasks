@@ -8,16 +8,16 @@
     <div class="media">
         <div class="mr-3 text-center">
             <div class="avatar mb-1">
-                <img src="{{ question.author.avatar.url }}">
+                <img src="{{ question.author.get_avatar }}">
             </div>
 
-            <span id="rating">{{ question.rating }}</span>
+            <div id="q{{ question.id }}">{{ question.rating }}</div>
 
-            {% if user.is_authenticated %}
-            <div>
-                <button type="button" class="btn btn-sm"><i class="fas fa-plus"></i></button>
-                <button type="button" class="btn btn-sm"><i class="fas fa-minus"></i></button>
-            </div>
+            {% if user.is_authenticated and request.user.profile != question.author %}
+                <div class="rating">
+                    <button id="l{{ question.id }}" type="submit" formmethod="POST" formaction="{% url 'like' %}" class="btn btn-sm"><i class="fas fa-plus"></i></button>
+                    <button id="d{{ question.id }}" type="submit" formmethod="POST" formaction="{% url 'like' %}" class="btn btn-sm"><i class="fas fa-minus"></i></button>
+                </div>
             {% endif %}
 
         </div>
@@ -34,7 +34,7 @@
 
             <hr>
             <div class="">
-                <small class="text-muted">Автор: <a href="#" class="text-decoration-none">{{ question.author }}</a></small>
+                <small class="text-muted">Автор: <span class="text-primary">{{ question.author.nickname }}</span></small>
                 <small class="text-muted">Опубликовано: {{ question.creating_date }}</small>
             </div>
 

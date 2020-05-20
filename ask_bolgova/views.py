@@ -1,14 +1,12 @@
+import json
+
 from django.contrib import auth, messages
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect, reverse
-
 from django.contrib.auth.decorators import login_required
-
 from ask_bolgova.paginator.paginate import paginate
 from ask_bolgova.models import *
-
 from urllib.parse import urlsplit, urlunsplit
-
 from ask_bolgova import forms
 
 
@@ -87,7 +85,9 @@ def profile(request):
                 if request.FILES.get('avatar') is not None:
                     user.profile.avatar = request.FILES.get('avatar')
             user.save()
+            messages.success(request, 'Профиль успешно сохранен', fail_silently=True)
             return redirect('profile')
+
     return render(request, 'profile.html', {'form': form})
 
 
@@ -134,3 +134,75 @@ def signup(request):
 
     return render(request, 'signup.html', {'form': form})
 
+
+@login_required
+def like(request):
+    response_data = {}
+
+    if request.method == 'POST':
+        obj_id = int(request.POST.get('id'))
+        action = int(request.POST.get('action'))
+
+        obj = Question.objects.get(pk=obj_id)
+
+        new_rating = Like.objects.create(obj, request.user.profile, obj_id, action)
+
+        response_data['new_rating'] = new_rating
+        response_data['result'] = 'OK'
+
+    return HttpResponse(
+        json.dumps(response_data),
+        content_type="application/json"
+    )
+
+
+@login_required
+def clike(request):
+    response_data = {}
+
+    if request.method == 'POST':
+        obj_id = int(request.POST.get('id'))
+        action = int(request.POST.get('action'))
+
+        obj = Comment.objects.get(pk=obj_id)
+
+        new_rating = Like.objects.create(obj, request.user.profile, obj_id, action)
+
+        response_data['new_rating'] = new_rating
+        response_data['result'] = 'OK'
+
+    return HttpResponse(
+        json.dumps(response_data),
+        content_type="application/json"
+    )
+
+
+@login_required
+def set_right_answ(request):
+    response_data = {}
+
+    if request.method == 'POST':
+        question = int(request.POST.get('question_id'))
+        answer = int(request.POST.get('answer_id'))
+
+        q = Question.objects.get(pk=question)
+        a = Comment.objects.get(pk=answer)
+
+        if request.user.profile == q.author:
+            response_data['result'] = 'OK'
+            q.id_answer = answer
+            a.best_comment = True
+            q.save()
+            a.save()
+        else:
+            response_data['result'] = 'USER_IS_NOT_AUTHOR'
+
+        return HttpResponse(
+            json.dumps(response_data),
+            content_type="application/json"
+        )
+
+    return HttpResponse(
+        json.dumps(response_data),
+        content_type="application/json"
+    )
