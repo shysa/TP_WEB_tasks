@@ -10,7 +10,10 @@
             {% bootstrap_form form layout="horizontal" label_class="form-label col-sm-3" field_class="form-field col-sm-7" %}
 
             {% buttons %}
-                <button type="submit" class="btn btn-primary">Задать вопрос</button>
+                <button type="submit" class="btn btn-primary">
+                    <span class="spinner-border spinner-border-sm p-0 m-0" style="display: none;" role="status" aria-hidden="true"></span>
+                    Задать вопрос
+                </button>
             {% endbuttons %}
         </form>
 {% endblock %}

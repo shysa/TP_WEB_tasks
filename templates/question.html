@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load bootstrap4 %}
 {% load static %}
+{% load check_likes %}
 
 {% block index %}
 
@@ -15,8 +16,10 @@
 
             {% if user.is_authenticated and request.user.profile != question.author %}
                 <div class="rating">
-                    <button id="l{{ question.id }}" type="submit" formmethod="POST" formaction="{% url 'like' %}" class="btn btn-sm"><i class="fas fa-plus"></i></button>
-                    <button id="d{{ question.id }}" type="submit" formmethod="POST" formaction="{% url 'like' %}" class="btn btn-sm"><i class="fas fa-minus"></i></button>
+                    <button id="l{{ question.id }}" type="submit" formmethod="POST" formaction="{% url 'like' %}" class="btn btn-sm"
+                        {% check_likes user.profile question.id 'question' %}><i class="fas fa-plus"></i></button>
+                    <button id="d{{ question.id }}" type="submit" formmethod="POST" formaction="{% url 'like' %}" class="btn btn-sm"
+                        {% check_dislikes user.profile question.id 'question' %}><i class="fas fa-minus"></i></button>
                 </div>
             {% endif %}
 
@@ -64,7 +67,10 @@
         {% bootstrap_form form show_label=False %}
 
         {% buttons %}
-            <button type="submit" class="btn btn-primary">Ответить</button>
+            <button type="submit" class="btn btn-primary">
+                <span class="spinner-border spinner-border-sm p-0 m-0" style="display: none;" role="status" aria-hidden="true"></span>
+                Ответить
+            </button>
         {% endbuttons %}
     </form>
 

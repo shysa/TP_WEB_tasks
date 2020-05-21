@@ -1,4 +1,5 @@
 {% load static %}
+{% load check_likes %}
 
 <li class="media border rounded mb-3 p-3 container">
     <div class="mr-3 text-center">
@@ -10,8 +11,10 @@
 
         {% if user.is_authenticated and request.user.profile != question.author %}
         <div class="rating">
-            <button id="l{{ question.id }}" type="submit" formmethod="POST" formaction="{% url 'like' %}" class="btn btn-sm"><i class="fas fa-plus"></i></button>
-            <button id="d{{ question.id }}" type="submit" formmethod="POST" formaction="{% url 'like' %}" class="btn btn-sm"><i class="fas fa-minus"></i></button>
+            <button id="l{{ question.id }}" type="submit" formmethod="POST" formaction="{% url 'like' %}" class="btn btn-sm"
+                {% check_likes user.profile question.id 'question' %}><i class="fas fa-plus"></i></button>
+            <button id="d{{ question.id }}" type="submit" formmethod="POST" formaction="{% url 'like' %}" class="btn btn-sm"
+                {% check_dislikes user.profile question.id 'question' %}><i class="fas fa-minus"></i></button>
         </div>
         {% endif %}
 

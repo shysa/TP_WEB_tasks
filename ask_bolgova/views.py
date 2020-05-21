@@ -189,11 +189,13 @@ def set_right_answ(request):
         a = Comment.objects.get(pk=answer)
 
         if request.user.profile == q.author:
-            response_data['result'] = 'OK'
-            q.id_answer = answer
-            a.best_comment = True
-            q.save()
-            a.save()
+            if q.id_answer < 0:
+                q.id_answer = answer
+                a.best_comment = True
+                q.save()
+                a.save()
+                response_data['result'] = 'OK'
+            response_data['result'] = 'ANSWER EXISTS'
         else:
             response_data['result'] = 'USER_IS_NOT_AUTHOR'
 

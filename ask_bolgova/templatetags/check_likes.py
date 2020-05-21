@@ -1,0 +1,24 @@
+from django import template
+from ask_bolgova.models import Like, Question, Comment
+
+register = template.Library()
+
+
+@register.simple_tag(name='check_likes')
+def check_likes(request_user, id, type):
+    likes = Like.objects.like_sort(request_user, id, type)
+    if likes.exists():
+        return 'disabled="disabled"'
+    else:
+        return
+
+
+@register.simple_tag(name='check_dislikes')
+def check_dislikes(request_user, id, type):
+    dislikes = Like.objects.dislike_sort(request_user, id, type)
+    print(dislikes)
+    if dislikes.exists():
+        return 'disabled="disabled"'
+    else:
+        return
+

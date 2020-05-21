@@ -94,7 +94,7 @@ $(document).ready(function(){
 
             success : function(json) {
                 $('#c' + id).text(json['new_rating']);
-                $('.toast').toast('show');
+
                 let sibling_btn = vote > 0 ? 'd' + id : 'l' + id;
                 $('#' + sibling_btn).prop('disabled', false);
             },
@@ -137,6 +137,11 @@ $(document).ready(function(){
     });
 
 
+    $('form').submit(function () {
+        $('.spinner-border').show();
+        $('input[type="submit"]').attr('disabled', true);
+        return true;
+    })
 
 
 });

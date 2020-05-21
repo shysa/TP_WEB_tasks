@@ -47,13 +47,13 @@ class Tag(models.Model):
 class LikeManager(models.Manager):
     use_for_related_fields = True
 
-    def like_sort(self):
+    def like_sort(self, user, id, type):
         # Записи с рейтингом > 0
-        return self.get_queryset().filter(vote__gt=0)
+        return self.get_queryset().filter(vote__gt=0, user=user, object_id=id, content_type__model=type)
 
-    def dislike_sort(self):
+    def dislike_sort(self, user, id, type):
         # И < 0
-        return self.get_queryset().filter(vote__lt=0)
+        return self.get_queryset().filter(vote__lt=0, user=user, object_id=id, content_type__model=type)
 
     def create(self, target, user, pk, vote_type):
         obj = target.__class__.objects.get(pk=pk)
@@ -97,7 +97,7 @@ class Like(models.Model):
     objects = LikeManager()
 
     def __str__(self):
-        title = str(self.user) + " votes " + str(self.object_id) + " | " + str(self.content_type.name)
+        title = str(self.user) + " votes " + str(self.object_id) + " by " + str(self.vote) + " | " + str(self.content_type.name)
         return title
 
 
