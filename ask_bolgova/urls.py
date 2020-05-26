@@ -17,9 +17,12 @@ urlpatterns = [
     path('login/', views.login, name="login"),
     path('logout/', views.logout, name="logout"),
     path('signup/', views.signup, name="signup"),
+
     path('like/', views.like, name="like"),
     path('clike/', views.clike, name="clike"),
     path('ransw/', views.set_right_answ, name="ransw"),
+
+    path('params/', views.request_params, name='params'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

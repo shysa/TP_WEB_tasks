@@ -208,3 +208,17 @@ def set_right_answ(request):
         json.dumps(response_data),
         content_type="application/json"
     )
+
+
+def request_params(request):
+    content = {'form': forms.ParametersForm()}
+
+    if request.method == 'POST':
+        content['form'] = forms.ParametersForm(data=request.POST)
+        if content['form'].is_valid():
+            content['POST'] = request.POST.dict()
+
+    if request.method == 'GET':
+        content['GET'] = request.GET.dict()
+
+    return render(request, 'utils/parameters.html', content)

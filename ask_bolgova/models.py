@@ -39,6 +39,9 @@ class Profile(models.Model):
 class Tag(models.Model):
     title = models.CharField(max_length=30, db_index=True, unique=True)
 
+    def get_absolute_url(self):
+        return reverse('tag', args=[self.title])
+
     def __str__(self):
         return self.title
 

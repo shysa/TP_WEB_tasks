@@ -31,7 +31,7 @@
 
             <div class="mb-1">Теги:
                 {% for tag in question.tags.all %}
-                    <a href="{% url 'tag' tag=tag %}" class="text-decoration-none">{{ tag }}</a>
+                    <a href="{{ tag.get_absolute_url }}" class="text-decoration-none">{{ tag }}</a>
                 {% endfor %}
             </div>
 

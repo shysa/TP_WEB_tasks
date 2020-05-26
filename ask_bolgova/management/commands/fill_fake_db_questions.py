@@ -1,5 +1,4 @@
 from django.core.management.base import BaseCommand
-from django.utils.crypto import get_random_string
 import random
 
 from ask_bolgova.models import *
@@ -16,14 +15,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         total = kwargs['total']
-        author_list = User.objects.all()
-        tag_list = Tag.objects.all()
+        author_list = Profile.objects.values_list('id', flat=True)
+        tag_list = Tag.objects.values_list('id', flat=True)
 
         for i in range(total):
-            a = random.choice(author_list)
-            q = Question.objects.create(title=fake.sentence(), text=fake.text(),
-                                        author=a.profile)
+            q = Question.objects.create(title=fake.sentence(),
+                                        text=fake.text()[:500],
+                                        author_id=random.choice(author_list))
 
             for x in range(random.randint(1, 3)):
                 t = random.choice(tag_list)
-                q.add_tag(t)
+                q.tags.add(t)

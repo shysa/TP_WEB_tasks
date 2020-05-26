@@ -190,3 +190,9 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['email', 'nickname', 'avatar']
+
+
+# --------------------------------------------- GET/POST PARAMS ---------------------------------------------
+class ParametersForm(forms.Form):
+    param = forms.CharField(label="POST-параметр", widget=forms.TextInput, required=False)
+

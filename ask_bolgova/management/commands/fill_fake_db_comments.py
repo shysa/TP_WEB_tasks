@@ -15,10 +15,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         total = kwargs['total']
-        author_list = User.objects.all()
-        questions_list = Question.objects.all()
+        author_list = Profile.objects.values_list('id', flat=True)
+        questions_list = Question.objects.values_list('id', flat=True)
 
         for i in range(total):
             a = random.choice(author_list)
             q = random.choice(questions_list)
-            com = Comment.objects.create(text=fake.text(), question=q, author=a.profile)
+            com = Comment.objects.create(text=fake.text(), question_id=q, author_id=a)
